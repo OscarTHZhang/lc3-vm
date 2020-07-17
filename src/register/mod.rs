@@ -1,7 +1,13 @@
-
 pub const PC_START: u16 = 0x3000;
-pub const PC_NUM: u16 = 8;
-pub const COND_NUM: u16 = 9;
+pub const PC_REG: u16 = 8;
+pub const COND_REG: u16 = 9;
+
+pub enum CondFlag {
+    POS = 1 << 0, // Postive
+    ZRO = 1 << 1, // Zero
+    NEG = 1 << 2, // Negative
+}
+
 
 #[derive(Debug)]
 pub struct RegFile {
@@ -46,8 +52,8 @@ impl RegFile {
             5 => self.r_r5 = val,
             6 => self.r_r6 = val,
             7 => self.r_r7 = val,
-            PC_NUM => self.r_pc = val,
-            COND_NUM => self.r_cond = val,
+            PC_REG => self.r_pc = val,
+            COND_REG => self.r_cond = val,
             _ => panic!("Invalid Register in RegFile!"),
         }
     }
@@ -63,9 +69,45 @@ impl RegFile {
             5 => self.r_r5,
             6 => self.r_r6,
             7 => self.r_r7,
-            PC_NUM => self.r_pc,
-            COND_NUM => self.r_cond,
+            PC_REG => self.r_pc,
+            COND_REG => self.r_cond,
             _ => panic!("Invalid Register in RegFile!"),
         }
+    }
+
+    pub fn update_cond_flag(&mut self, reg: u16) {
+        let val = self.read_reg(reg);
+        if val == 0 {
+            self.update_reg(COND_REG, CondFlag::ZRO as u16);
+        } else if (val >> 15) != 0 {
+            self.update_reg(COND_REG, CondFlag::NEG as u16);
+        } else {
+            self.update_reg(COND_REG, CondFlag::POS as u16);
+        }
+    }
+}
+
+#[cfg(test)]
+mod register_test {
+
+    use super::*;
+
+    #[test]
+    fn flag_zero() {
+        let mut reg_file = RegFile::new();
+        reg_file.update_reg(1, 12);
+        reg_file.update_cond_flag(1);
+        let value = reg_file.read_reg(COND_REG);
+        assert_eq!(CondFlag::POS as u16, value);
+    }
+
+    #[test]
+    fn flag_positive() {
+
+    }
+
+    #[test]
+    fn flag_negative() {
+
     }
 }
