@@ -37,3 +37,20 @@ impl Clone for Memory {
         *self
     }
 }
+
+
+// test for memory
+#[cfg(test)]
+mod memory_test {
+
+    use super::*;
+
+    #[test]
+    fn write_to_mem() {
+        let mut mem = Memory::new();
+        mem.write(0x0E61, 10);
+        let value = mem.read(0x0E61);
+        assert_eq!(value, 10);
+    }
+
+}

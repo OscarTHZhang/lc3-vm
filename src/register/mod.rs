@@ -95,19 +95,27 @@ mod register_test {
     #[test]
     fn flag_zero() {
         let mut reg_file = RegFile::new();
-        reg_file.update_reg(1, 12);
+        reg_file.update_reg(1, 0);
         reg_file.update_cond_flag(1);
+        let value = reg_file.read_reg(COND_REG);
+        assert_eq!(CondFlag::ZRO as u16, value);
+    }
+
+    #[test]
+    fn flag_positive() {
+        let mut reg_file = RegFile::new();
+        reg_file.update_reg(3, 12);
+        reg_file.update_cond_flag(3);
         let value = reg_file.read_reg(COND_REG);
         assert_eq!(CondFlag::POS as u16, value);
     }
 
     #[test]
-    fn flag_positive() {
-
-    }
-
-    #[test]
     fn flag_negative() {
-
+        let mut reg_file = RegFile::new();
+        reg_file.update_reg(5, 0xE00F);
+        reg_file.update_cond_flag(5);
+        let value = reg_file.read_reg(COND_REG);
+        assert_eq!(CondFlag::NEG as u16, value);
     }
 }
