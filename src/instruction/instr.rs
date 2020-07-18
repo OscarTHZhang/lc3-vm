@@ -80,3 +80,19 @@ pub fn instr_jsr(instr: u16, reg_file: &mut RegFile) {
         reg_file.r_pc = reg_file.read_reg(base_reg);
     }
 }
+
+
+pub fn instr_ld(instr: u16, reg_file: &mut RegFile) {
+
+}
+
+
+pub fn instr_ldi(instr: u16, reg_file: &mut RegFile) {
+
+}
+
+
+pub fn instr_ldr(instr: u16, reg_file: &mut RegFile) {
+
+}
+
