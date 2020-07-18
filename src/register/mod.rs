@@ -11,16 +11,16 @@ pub enum CondFlag {
 
 #[derive(Debug)]
 pub struct RegFile {
-    pub r_r0: u16,
-    pub r_r1: u16,
-    pub r_r2: u16,
-    pub r_r3: u16,
-    pub r_r4: u16,
-    pub r_r5: u16,
-    pub r_r6: u16,
-    pub r_r7: u16,
-    pub r_pc: u16,
-    pub r_cond: u16, // conditional register
+    pub r_r0: u16, // default zero set to public 
+    r_r1: u16,
+    r_r2: u16,
+    r_r3: u16,
+    r_r4: u16,
+    r_r5: u16,
+    r_r6: u16,
+    pub r_r7: u16, // expose R7 for subroutine purpose
+    pub r_pc: u16, // expose pc for running instruction
+    pub r_cond: u16, // conditional register for compare
 }
 
 
@@ -41,6 +41,7 @@ impl RegFile {
         }
     }
 
+    // the following functions are only for u16 arithmatics
     pub fn update_reg(&mut self, reg: u16, val: u16) {
         // map the update for the registers
         match reg {
@@ -61,7 +62,7 @@ impl RegFile {
     pub fn read_reg(&mut self, reg: u16) -> u16 {
         // map registers
         match reg {
-            0 => panic!("R0 should never be changed!"), // R0 should never be changed!
+            0 => 0 , // R0 should always be zero
             1 => self.r_r1,
             2 => self.r_r2,
             3 => self.r_r3,
