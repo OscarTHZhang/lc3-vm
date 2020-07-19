@@ -1,4 +1,5 @@
 use crate::register::RegFile;
+use crate::memory::Memory;
 use super::*;
 
 /**
@@ -82,17 +83,79 @@ pub fn instr_jsr(instr: u16, reg_file: &mut RegFile) {
 }
 
 
-pub fn instr_ld(instr: u16, reg_file: &mut RegFile) {
-
+pub fn instr_ld(instr: u16, reg_file: &mut RegFile, mem: &mut Memory) {
+    let dr = (instr >> DR_SHIFT) & REG_MASK;
+    let pc_offset = sign_extend(instr & 0x1ff, 9);
+    let address = pc_offset as u32 + reg_file.r_pc as u32;
+    reg_file.update_reg(dr, mem.read(address as u16));
+    reg_file.update_cond_flag(dr);
 }
 
 
-pub fn instr_ldi(instr: u16, reg_file: &mut RegFile) {
-
+// indirect load (load twice)
+pub fn instr_ldi(instr: u16, reg_file: &mut RegFile, mem: &mut Memory) {
+    let dr = (instr >> DR_SHIFT) & REG_MASK;
+    let pc_offset = sign_extend(instr & 0x1ff, 9);
+    let address = mem.read(reg_file.r_pc + pc_offset);
+    reg_file.update_reg(dr, mem.read(address));
+    reg_file.update_cond_flag(dr);
 }
 
 
-pub fn instr_ldr(instr: u16, reg_file: &mut RegFile) {
-
+pub fn instr_ldr(instr: u16, reg_file: &mut RegFile, mem: &mut Memory) {
+    let dr = (instr >> DR_SHIFT) & REG_MASK;
+    let sr1 = (instr >> SR1_SHIFT) & REG_MASK;
+    let offset = sign_extend(instr & 0x3f, 6);
+    let address = reg_file.read_reg(sr1) as u32 + offset as u32;
+    reg_file.update_reg(dr, mem.read(address as u16));
+    reg_file.update_cond_flag(dr);
 }
 
+
+pub fn instr_lea(instr: u16, reg_file: &mut RegFile) {
+    let dr = (instr >> DR_SHIFT) & REG_MASK;
+    let pc_offset = sign_extend(instr & 0x1ff, 9);
+    let val: u32 = reg_file.r_pc as u32 + pc_offset as u32;
+    reg_file.update_reg(dr, val as u16);
+    reg_file.update_cond_flag(dr);
+}
+
+
+pub fn instr_not(instr: u16, reg_file: &mut RegFile) {
+    let dr = (instr >> DR_SHIFT) & REG_MASK;
+    let sr1 = (instr >> SR1_SHIFT) & REG_MASK;
+    let val = reg_file.read_reg(sr1);
+    reg_file.update_reg(dr, !val);
+    reg_file.update_cond_flag(dr);
+}
+
+
+pub fn instr_st(instr: u16, reg_file: &mut RegFile, mem: &mut Memory) {
+    let dr = (instr >> DR_SHIFT) & REG_MASK;
+    let pc_offset = sign_extend(instr & 0x1ff, 9);
+    let address = reg_file.r_pc as u32 + pc_offset as u32;
+    mem .write(address as u16, reg_file.read_reg(dr));
+}
+
+
+pub fn instr_sti(instr: u16, reg_file: &mut RegFile, mem: &mut Memory) {
+    let dr = (instr >> DR_SHIFT) & REG_MASK;
+    let pc_offset = sign_extend(instr & 0x1ff, 9);
+    let addr1 = reg_file.r_pc as u32 + pc_offset as u32;
+    let addr2 = mem.read(addr1 as u16);
+    mem.write(addr2, reg_file.read_reg(dr));
+}
+
+
+pub fn instr_str(instr: u16, reg_file: &mut RegFile, mem: &mut Memory) {
+    let dr = (instr >> DR_SHIFT) & REG_MASK;
+    let sr1 = (instr >> SR1_SHIFT) & REG_MASK;
+    let offset = sign_extend(instr & 0x3f, 6);
+    let address = reg_file.read_reg(sr1) as u32 + offset as u32;
+    mem.write(address as u16, reg_file.read_reg(dr));
+}
+
+
+pub fn instr_trap(instr: u16, reg_file: &mut RegFile) {
+    
+}
