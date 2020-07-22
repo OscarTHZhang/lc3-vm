@@ -154,8 +154,3 @@ pub fn instr_str(instr: u16, reg_file: &mut RegFile, mem: &mut Memory) {
     let address = reg_file.read_reg(sr1) as u32 + offset as u32;
     mem.write(address as u16, reg_file.read_reg(dr));
 }
-
-
-pub fn instr_trap(instr: u16, reg_file: &mut RegFile) {
-    
-}

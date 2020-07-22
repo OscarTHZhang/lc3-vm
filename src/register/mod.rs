@@ -11,7 +11,7 @@ pub enum CondFlag {
 
 #[derive(Debug)]
 pub struct RegFile {
-    pub r_r0: u16, // default zero set to public 
+    pub r_r0: u16, // expose r0 to outside
     r_r1: u16,
     r_r2: u16,
     r_r3: u16,
@@ -45,7 +45,7 @@ impl RegFile {
     pub fn update_reg(&mut self, reg: u16, val: u16) {
         // map the update for the registers
         match reg {
-            0 => panic!("R0 should never be changed!"), // R0 should never be changed!
+            0 => self.r_r0 = val,
             1 => self.r_r1 = val,
             2 => self.r_r2 = val,
             3 => self.r_r3 = val,
@@ -62,7 +62,7 @@ impl RegFile {
     pub fn read_reg(&mut self, reg: u16) -> u16 {
         // map registers
         match reg {
-            0 => 0 , // R0 should always be zero
+            0 => self.r_r0, 
             1 => self.r_r1,
             2 => self.r_r2,
             3 => self.r_r3,
