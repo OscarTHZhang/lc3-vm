@@ -1,4 +1,5 @@
 pub mod instr;
+pub mod trap;
 
 // constant for instruction parsing
 const DR_SHIFT: usize = 9;
