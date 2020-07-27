@@ -70,7 +70,7 @@ pub fn instr_jmp(instr: u16, reg_file: &mut RegFile) {
  */
 pub fn instr_jsr(instr: u16, reg_file: &mut RegFile) {
     let base_reg = (instr >> 7) & 0x7;
-    let pc_offset = sign_extend(instr >> 0x7ff, 11);
+    let pc_offset = sign_extend(instr & 0x7ff, 11);
     let flag = (instr >> 11) & 1;
     reg_file.r_r7 = reg_file.r_pc; // update R7 to PC + 1;
     if flag != 0 {

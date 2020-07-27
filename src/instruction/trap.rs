@@ -4,6 +4,7 @@ use crate::memory::Memory;
 
 use std::io::Read;
 use std::io::Write;
+use std::process;
 
 
 // TRAP code constants
@@ -33,16 +34,57 @@ pub fn instr_trap(instr: u16, reg_file: &mut RegFile, mem: &mut Memory) {
             std::io::stdout().flush().expect("Flushed.");
         },
         PUTS => {
-
+            let mut index = reg_file.read_reg(0) as usize;
+            // error check: index out of range?
+            let mut cc = mem.cells[index];
+            while cc != 0x0000 {
+                // one word stores two character, either of which could be null char
+                let c1 = ((cc & 0xff) as u8) as char;
+                if c1 == '\0' {
+                    break;
+                }
+                print!("{}", c1);
+                let c2 = ((cc >> 8) as u8) as char;
+                if c2 == '\0' {
+                    break;
+                }
+                print!("{}", c2);
+                index += 1;
+                cc = mem.cells[index];
+            }
+            std::io::stdout().flush().expect("Flushed.");
         },
         IN => {
-
+            // input a character
+            print!("Enter a character: ");
+            let input = std::io::stdin()
+                .bytes()
+                .next()
+                .and_then(|res| res.ok())
+                .map(|byte| byte as u16)
+                .unwrap();
+            reg_file.update_reg(0, input);
         },
         PUTSP => {
-
+            // output a byte string
+            let mut index = reg_file.read_reg(0) as usize;
+            let mut cc = mem.cells[index];
+            while cc != 0x0000 {
+                let c1 = ((cc & 0xff) as u8) as char;
+                print!("{}", c1);
+                let c2 = ((cc >> 8) as u8) as char;
+                if c2 != '\0' {
+                    print!("{}", c2);
+                }
+                index += 1;
+                cc = mem.cells[index];
+            }
+            std::io::stdout().flush().expect("Flushed.");
         },
         HALT => {
-
+            println!("Halt the program.");
+            std::io::stdout().flush().expect("Flushed.");
+            process::exit(1);
         },
         _ => {
             panic!("invalid trap vector!");
