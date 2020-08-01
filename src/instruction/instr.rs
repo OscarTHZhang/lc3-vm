@@ -154,3 +154,56 @@ pub fn instr_str(instr: u16, reg_file: &mut RegFile, mem: &mut Memory) {
     let address = reg_file.read_reg(sr1) as u32 + offset as u32;
     mem.write(address as u16, reg_file.read_reg(dr));
 }
+
+#[cfg(test)]
+mod general_instruction_test {
+    use super::*;
+    use crate::memory::*;
+    use crate::register::*;
+
+    // add two registers
+    #[test]
+    fn test_instr_add() {
+        let mut reg_file = RegFile::new();
+        reg_file.update_reg(1, 3);
+        reg_file.update_reg(2, 4);
+        let binary_instr: u16 = 0b0001011001000010; // R3 <- R1 + R2
+        instr_add(binary_instr, &mut reg_file);
+        let value = reg_file.read_reg(3);
+        assert_eq!(value, 7 as u16);
+    }
+
+    // add one register and an immediate value
+    #[test]
+    fn test_instr_add2() {
+        let mut reg_file = RegFile::new();
+        reg_file.update_reg(4, 13);
+        let binary_instr: u16 = 0b0001010100100011; // R2 <- R4 + 3
+        instr_add(binary_instr, &mut reg_file);
+        let value = reg_file.read_reg(2);
+        assert_eq!(value, 16 as u16);
+    }
+
+    // and two register values
+    #[test]
+    fn test_instr_and() {
+        let mut reg_file = RegFile::new();
+        reg_file.update_reg(1, 0b0011 as u16);
+        reg_file.update_reg(2, 0b1110 as u16);
+        let binary_instr: u16 = 0b0101011001000010;
+        instr_and(binary_instr, &mut reg_file); // R3 <- R1 & R2
+        let value = reg_file.read_reg(3);
+        assert_eq!(value, 0b0010 as u16);
+    }
+
+    // and one register with immediate
+    #[test]
+    fn test_instr_and2() {
+        let mut reg_file = RegFile::new();
+        reg_file.update_reg(1, 0b1110 as u16);
+        let binary_instr: u16 = 0b0101010001100110; // R2 <- R1 & 00110
+        instr_and(binary_instr, &mut reg_file);
+        let value = reg_file.read_reg(2);
+        assert_eq!(value, 0b0110 as u16);
+    }
+}
