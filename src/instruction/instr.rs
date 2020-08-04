@@ -206,4 +206,31 @@ mod general_instruction_test {
         let value = reg_file.read_reg(2);
         assert_eq!(value, 0b0110 as u16);
     }
+
+    // branch zero test
+    #[test]
+    fn test_instr_brz() {
+        let mut reg_file = RegFile::new();
+        let and: u16 = 0b0101001001100000;
+        let brz: u16 = 0b0000010010101011;
+        instr_and(and, &mut reg_file);
+        let pc_val = reg_file.read_reg(PC_REG);
+        instr_brx(brz, &mut reg_file);
+        let value = reg_file.read_reg(PC_REG);
+        assert_eq!(value - pc_val, 0b010101011 as u16);
+    }
+
+    // branch negative test
+    #[test]
+    fn test_instr_brn() {
+        let mut reg_file = RegFile::new();
+        let add: u16 = 0b0101001001111100;
+        let brn: u16 = 0b0000100001110110;
+        instr_add(add, &mut reg_file);
+        let pc_val = reg_file.read_reg(PC_REG);
+        instr_brx(brn , &mut reg_file);
+        let value = reg_file.read_reg(PC_REG);
+        assert_eq!(value - pc_val, 0b001110110 as u16);
+    }
+
 }
