@@ -69,7 +69,7 @@ pub fn instr_jmp(instr: u16, reg_file: &mut RegFile) {
  * Unconditional jump to label or subroutine
  */
 pub fn instr_jsr(instr: u16, reg_file: &mut RegFile) {
-    let base_reg = (instr >> 7) & 0x7;
+    let base_reg = (instr >> 6) & 0x7;
     let pc_offset = sign_extend(instr & 0x7ff, 11);
     let flag = (instr >> 11) & 1;
     reg_file.r_r7 = reg_file.r_pc; // update R7 to PC + 1;
@@ -231,6 +231,66 @@ mod general_instruction_test {
         instr_brx(brn , &mut reg_file);
         let value = reg_file.read_reg(PC_REG);
         assert_eq!(value - pc_val, 0b001110110 as u16);
+    }
+
+    // testing branch positive
+    #[test]
+    fn test_instr_brp() {
+        let mut reg_file = RegFile::new();
+        let add: u16 = 0b0101001001100001;
+        let brp: u16 = 0b0000001000111000; // PC <- PC + 000111000
+        instr_add(add, &mut reg_file);
+        let pc_val = reg_file.read_reg(PC_REG);
+        instr_brx(brp, &mut reg_file);
+        let value = reg_file.read_reg(PC_REG);
+        assert_eq!(value - pc_val, 0b000111000);
+    }
+
+    // test unconditional branch / jump
+    #[test]
+    fn test_instr_jmp() {
+        let mut reg_file = RegFile::new();
+        reg_file.update_reg(1, 0b0111 as u16);
+        let jmp: u16 = 0b1100000001000000;
+        instr_jmp(jmp, &mut reg_file);
+        let value = reg_file.read_reg(PC_REG);
+        assert_eq!(value, 0b0111 as u16);
+    }
+
+    // test jsr label (jump to label)
+    #[test]
+    fn test_instr_jsr() {
+        let mut reg_file = RegFile::new();
+        let jsr: u16 = 0b0100100011011010;
+        let pc_val = reg_file.read_reg(PC_REG);
+        instr_jsr(jsr, &mut reg_file);
+        let r7 = reg_file.read_reg(7);
+        let value = reg_file.read_reg(PC_REG);
+        assert!((r7 == pc_val) && (value - pc_val == 0b00011011010 as u16));
+    }
+
+    #[test]
+    fn test_instr_jsrr() {
+        let mut reg_file = RegFile::new();
+        reg_file.update_reg(2, 0b011101 as u16);
+        let jsrr: u16 = 0b0100000010000000;
+        let pc_val = reg_file.read_reg(PC_REG);
+        instr_jsr(jsrr, &mut reg_file);
+        let r7 = reg_file.read_reg(7);
+        let value = reg_file.read_reg(PC_REG);
+        assert!((r7 == pc_val) && (value == 0b011101 as u16));
+    }
+
+    #[test]
+    fn test_instr_ld() {
+        let mut reg_file = RegFile::new();
+        let mut mem = Memory::new();
+        let location = (0x3000 + 0x25) as u16;
+        mem.write(location, 0x333 as u16);
+        let ld = (0b0010001000000000 | 0x25) as u16;
+        instr_ld(ld, &mut reg_file, &mut mem);
+        let value = reg_file.read_reg(1);
+        assert_eq!(value, 0x333 as u16);
     }
 
 }
