@@ -293,4 +293,55 @@ mod general_instruction_test {
         assert_eq!(value, 0x333 as u16);
     }
 
+    // test ldi instr
+    #[test]
+    fn test_instr_ldi() {
+        let mut reg_file = RegFile::new();
+        let mut mem = Memory::new();
+        let addr = (0x3000 + 0x35) as u16;
+        mem.write(addr, 0x3333 as u16);
+        mem.write(0x3333, 0x1528);
+        let ldi = (0b1010001000000000 | 0x35) as u16;
+        instr_ldi(ldi, &mut reg_file, &mut mem);
+        let value = reg_file.read_reg(1);
+        assert_eq!(value, 0x1528 as u16);
+    }
+
+    // test ldr instr
+    #[test]
+    fn test_instr_ldr() {
+        let mut reg_file = RegFile::new();
+        let mut mem = Memory::new();
+        let addr = (0x2099 + 0x00F) as u16;
+        mem.write(addr, 0x5555);
+        reg_file.update_reg(5, 0x2099);
+        let ldr = (0b0110010101000000 | 0x00F) as u16;
+        instr_ldr(ldr, &mut reg_file, &mut mem);
+        let value = reg_file.read_reg(2);
+        println!("{}", value);
+        assert_eq!(value, 0x5555);
+    }
+
+    // test for lea
+    #[test]
+    fn test_instr_lea() {
+        let mut reg_file = RegFile::new();
+        // let mut mem = Memory::new();
+        let addr = (0x3000 + 0x003B) as u16;
+        let lea = (0b1110110000000000 | 0x003B) as u16;
+        instr_lea(lea, &mut reg_file);
+        let value = reg_file.read_reg(6);
+        assert_eq!(value, addr);
+    }
+
+    #[test]
+    fn test_instr_not() {
+        let mut reg_file = RegFile::new();
+        let not = 0b1001001001111111 as u16;
+        reg_file.update_reg(1, 0xFFFF);
+        instr_not(not, &mut reg_file);
+        let value = reg_file.read_reg(1);
+        assert_eq!(value, 0x0000 as u16);
+    }
+
 }
