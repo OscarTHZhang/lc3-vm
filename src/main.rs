@@ -3,5 +3,5 @@ pub mod register;
 pub mod instruction;
 
 fn main() {
-    println!("Hello World!");
+    println!("{:?}", std::env::current_exe());
 }
