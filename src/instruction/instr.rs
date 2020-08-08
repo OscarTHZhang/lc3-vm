@@ -1,4 +1,5 @@
 use crate::register::RegFile;
+use crate::register::PC_REG;
 use crate::memory::Memory;
 use super::*;
 
@@ -127,6 +128,12 @@ pub fn instr_not(instr: u16, reg_file: &mut RegFile) {
     let val = reg_file.read_reg(sr1);
     reg_file.update_reg(dr, !val);
     reg_file.update_cond_flag(dr);
+}
+
+// return from R7 to PC
+pub fn instr_ret(reg_file: &mut RegFile) {
+    let prev_pc = reg_file.read_reg(7);
+    reg_file.update_reg(PC_REG, prev_pc);
 }
 
 
@@ -318,7 +325,7 @@ mod general_instruction_test {
         let ldr = (0b0110010101000000 | 0x00F) as u16;
         instr_ldr(ldr, &mut reg_file, &mut mem);
         let value = reg_file.read_reg(2);
-        println!("{}", value);
+        // println!("{}", value);
         assert_eq!(value, 0x5555);
     }
 
@@ -343,5 +350,57 @@ mod general_instruction_test {
         let value = reg_file.read_reg(1);
         assert_eq!(value, 0x0000 as u16);
     }
+
+    // test return instruction
+    #[test]
+    fn test_instr_ret() {
+        let mut reg_file = RegFile::new();
+        reg_file.update_reg(PC_REG, 0x3199);
+        reg_file.update_reg(7, 0x304A);
+        instr_ret(&mut reg_file);
+        let value = reg_file.read_reg(PC_REG);
+        assert_eq!(value, 0x304A);
+    }
+
+    // test st instruction
+    #[test]
+    fn test_instr_st() {
+        let mut reg_file = RegFile::new();
+        let mut mem = Memory::new();
+        reg_file.update_reg(1, 0x10 as u16);
+        let st: u16 = 0b0011001000000000 | 0x0024;
+        instr_st(st, &mut reg_file, &mut mem);
+        let value = mem.read(0x3000 + 0x0024);
+        assert_eq!(value, 0x10 as u16);
+    }
+
+    // test sti instruction
+    #[test]
+    fn test_instr_sti() {
+        let mut reg_file = RegFile::new();
+        let mut mem = Memory::new();
+        reg_file.update_reg(5, 0x004D);
+        let sti: u16 = 0b1011101000000000 | 0x0025;
+        mem.write(0x3000 + 0x0025 as u16, 0x324E as u16);
+        instr_sti(sti, &mut reg_file, &mut mem);
+        let value = mem.read(0x324E as u16);
+        // println!("{}", value);
+        assert_eq!(value, 0x004D as u16);
+    }
+
+    // test str instruction
+    #[test]
+    fn test_instr_str() {
+        let mut reg_file = RegFile::new();
+        let mut mem = Memory::new();
+        reg_file.update_reg(1, 0x2020); // SR
+        reg_file.update_reg(2, 0x2055); // BaseR
+        let str: u16 = 0b0111001010000000 | 0x0013;
+        instr_str(str, &mut reg_file, &mut mem);
+        let value = mem.read(0x2055 + 0x0013);
+        assert_eq!(value, 0x2020);
+    }
+
+    // test for trap ? how to test those things?
 
 }
