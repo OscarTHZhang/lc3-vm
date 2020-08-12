@@ -17,9 +17,9 @@ Run the simulator with debugging mode, given a specific lc3 trace file
 cargo run --debugger trace/<lc3_trace_file>.asm
 ```
 
-Run the visualizer, given a specific lc3 trace file
+Run the visualizer
 ```
-cargo run --visualizer trace/<lc3_trace_file>.asm
+npm run serve
 ```
 
 TODO Functionalities <br />
