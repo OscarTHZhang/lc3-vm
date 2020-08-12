@@ -1,4 +1,7 @@
 mod utils;
+pub mod memory;
+pub mod register;
+pub mod instruction;
 
 use wasm_bindgen::prelude::*;
 
