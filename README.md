@@ -19,7 +19,8 @@ cargo run --debugger trace/<lc3_trace_file>.asm
 
 Run the visualizer
 ```
-npm run serve
+cd static
+npm run start
 ```
 
 TODO Functionalities <br />
