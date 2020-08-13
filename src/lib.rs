@@ -20,3 +20,8 @@ extern {
 pub fn greet() {
     alert("Hello, lc3-vm-sim!");
 }
+
+// #[wasm_bindgen]
+// pub fn select_file() {
+
+// }
