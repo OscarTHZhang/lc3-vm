@@ -3,7 +3,7 @@ pub mod memory;
 pub mod register;
 pub mod instruction;
 
-use wasm_bind8gen::prelude::*;
+use wasm_bindgen::prelude::*;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
