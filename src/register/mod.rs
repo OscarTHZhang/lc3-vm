@@ -1,3 +1,5 @@
+use std::fmt;
+
 pub const PC_START: u16 = 0x3000;
 pub const PC_REG: u16 = 8;
 pub const COND_REG: u16 = 9;
@@ -85,6 +87,24 @@ impl RegFile {
         } else {
             self.update_reg(COND_REG, CondFlag::POS as u16);
         }
+    }
+}
+
+impl fmt::Display for RegFile {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "===== Register File ======")?;
+        writeln!(f, "R0 => 0x{:x?}", self.r_r0)?;
+        writeln!(f, "R1 => 0x{:x?}", self.r_r1)?;
+        writeln!(f, "R2 => 0x{:x?}", self.r_r2)?;
+        writeln!(f, "R3 => 0x{:x?}", self.r_r3)?;
+        writeln!(f, "R4 => 0x{:x?}", self.r_r4)?;
+        writeln!(f, "R5 => 0x{:x?}", self.r_r5)?;
+        writeln!(f, "R6 => 0x{:x?}", self.r_r6)?;
+        writeln!(f, "R7 => 0x{:x?}", self.r_r7)?;
+        writeln!(f, "PC => 0x{:x?}", self.r_pc)?;
+        writeln!(f, "COND REG => 0x{:x?}", self.r_cond)?;
+        writeln!(f, "=========================")?;
+        Ok(())
     }
 }
 
